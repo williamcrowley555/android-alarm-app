@@ -3,8 +3,11 @@ package com.example.alarmapp;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.AlarmManager;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -29,6 +32,7 @@ public class MainActivity extends AppCompatActivity {
         timePicker = (TimePicker) findViewById(R.id.timePicker);
         //Get current date
         calendar = Calendar.getInstance();
+        createNotificationChannel();
         alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
 
         final Intent intent = new Intent(MainActivity.this, AlarmReceiver.class);
@@ -73,5 +77,22 @@ public class MainActivity extends AppCompatActivity {
                 sendBroadcast(intent);
             }
         });
+
+
+    }
+    // Tạo channel notification nếu phiên bản 8 trở lên
+    private void createNotificationChannel(){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+        {
+            CharSequence name = "alarmChannel";
+            String description = "Channel for alarm reminder";
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel("alarm", name, importance);
+            channel.setDescription(description);
+
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
+
     }
 }
