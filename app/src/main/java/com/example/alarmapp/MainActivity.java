@@ -56,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 // PendingIntent still exists even the app has been existed
-                pendingIntent = PendingIntent.getBroadcast(MainActivity.this, 1, intent, 0);
+                pendingIntent = PendingIntent.getBroadcast(MainActivity.this, 1, intent, PendingIntent.FLAG_UPDATE_CURRENT);
                 alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
                 Toast.makeText(MainActivity.this, strHour + ":" + strMinute, Toast.LENGTH_SHORT).show();
             }
