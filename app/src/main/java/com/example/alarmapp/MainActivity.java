@@ -55,6 +55,8 @@ public class MainActivity extends AppCompatActivity {
                     strMinute = String.valueOf("0" + minute);
                 }
 
+                intent.putExtra("musicRequest", "on");
+
                 // PendingIntent still exists even the app has been existed
                 pendingIntent = PendingIntent.getBroadcast(MainActivity.this, 1, intent, PendingIntent.FLAG_UPDATE_CURRENT);
                 alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
@@ -66,7 +68,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Toast.makeText(MainActivity.this, "Cancel", Toast.LENGTH_SHORT).show();
-                pendingIntent.cancel();
+                alarmManager.cancel(pendingIntent);
+                intent.putExtra("musicRequest", "off");
+                sendBroadcast(intent);
             }
         });
     }

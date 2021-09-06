@@ -10,7 +10,7 @@ import androidx.annotation.Nullable;
 
 public class MusicService extends Service {
     MediaPlayer mediaPlayer;
-
+    boolean isOn;
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
@@ -19,9 +19,24 @@ public class MusicService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        mediaPlayer = MediaPlayer.create(this, R.raw.everywhere_i_go);
-        mediaPlayer.start();
         Log.e("I'm in Service", "Hello");
+
+        String musicRequest = intent.getExtras().getString("musicRequest");
+
+        if (musicRequest.equals("on")) {
+            isOn = true;
+        } else if (musicRequest.equals("off")) {
+            isOn = false;
+        }
+
+        if (isOn) {
+            mediaPlayer = MediaPlayer.create(this, R.raw.everywhere_i_go);
+            mediaPlayer.start();
+            isOn = false;
+        } else {
+            mediaPlayer.stop();
+            mediaPlayer.reset();
+        }
         return START_NOT_STICKY;
     }
 }
