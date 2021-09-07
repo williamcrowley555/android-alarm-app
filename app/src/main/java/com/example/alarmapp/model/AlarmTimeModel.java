@@ -1,7 +1,7 @@
 package com.example.alarmapp.model;
 
 public class AlarmTimeModel {
-    private int id;
+    private Integer id;
     private int hour;
     private int minute;
     private int status;
@@ -9,18 +9,18 @@ public class AlarmTimeModel {
     public AlarmTimeModel() {
     }
 
-    public AlarmTimeModel(int id, int hour, int minute, int status) {
+    public AlarmTimeModel(Integer id, int hour, int minute, int status) {
         this.id = id;
         this.hour = hour;
         this.minute = minute;
         this.status = status;
     }
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 

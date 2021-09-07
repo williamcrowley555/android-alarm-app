@@ -2,7 +2,9 @@
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="80dp">
+    android:layout_height="80dp"
+    android:descendantFocusability="blocksDescendants"
+    >
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -22,6 +24,7 @@
             android:layout_centerVertical="true"
             android:textColor="@color/black"
             android:text="00:00"
+            android:focusable="false"
             />
 
         <Switch

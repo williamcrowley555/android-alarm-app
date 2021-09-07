@@ -12,6 +12,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TimePicker;
@@ -42,22 +43,38 @@ public class MainActivity extends AppCompatActivity {
         adapter = new AlarmAdapter(this, R.layout.alarm_items, arrayAlarmTime);
         lvAlarmTime.setAdapter(adapter);
 
+        database = new Database(this, "alarm.sqlite", null, 1);
+        database.queryData("CREATE TABLE IF NOT EXISTS AlarmTime(Id INTEGER PRIMARY KEY AUTOINCREMENT, Hour INTEGER, Minute INTEGER,  Status INTEGER)");
+
+        getDataAlarmTime();
+
         btnAdd = (FloatingActionButton) findViewById(R.id.btnAdd);
         btnAdd.setOnClickListener(v -> {
             Intent intent = new Intent(v.getContext(), TimePickerActivity.class);
             startActivity(intent);
         });
 
-        database = new Database(this, "alarm.sqlite", null, 1);
-        database.queryData("CREATE TABLE IF NOT EXISTS AlarmTime(Id INTEGER PRIMARY KEY AUTOINCREMENT, Hour INTEGER, Minute INTEGER,  Status INTEGER)");
+        lvAlarmTime.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Integer selectedAlarmTimeId = arrayAlarmTime.get(position).getId();
+                Intent intent = new Intent(MainActivity.this, TimePickerActivity.class);
+                intent.putExtra("selectedAlarmTimeId", selectedAlarmTimeId);
+                startActivity(intent);
+            }
+        });
+    }
 
-        getDataAlarmTime();
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.e("ON RESUME", "called");
     }
 
     @Override
     protected void onRestart() {
         super.onRestart();
-        getDataAlarmTime();
+        Log.e("ON RESTART", "called");
     }
 
     private void getDataAlarmTime() {

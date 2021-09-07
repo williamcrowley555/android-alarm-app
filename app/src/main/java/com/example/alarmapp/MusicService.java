@@ -17,6 +17,7 @@ import androidx.core.app.NotificationCompat;
 public class MusicService extends Service {
     MediaPlayer mediaPlayer;
     boolean isOn;
+
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
@@ -25,8 +26,7 @@ public class MusicService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.e("I'm in Service", "Hello");
-
+        mediaPlayer = MediaPlayer.create(this, R.raw.everywhere_i_go);
         String musicRequest = intent.getExtras().getString("musicRequest");
 
         if (musicRequest.equals("on")) {
@@ -36,7 +36,6 @@ public class MusicService extends Service {
         }
 
         if (isOn) {
-            mediaPlayer = MediaPlayer.create(this, R.raw.everywhere_i_go);
             mediaPlayer.start();
             isOn = false;
         } else {

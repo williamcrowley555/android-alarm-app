@@ -28,11 +28,11 @@ public class TimePickerActivity extends AppCompatActivity {
     Button btnOk, btnCancel;
     TimePicker timePicker;
     Calendar calendar;
-    AlarmManager alarmManager;
-    PendingIntent pendingIntent;
 
     Database database;
-    int selectedAlarmTimeId = 0;
+    Integer selectedAlarmTimeId = null;
+
+    private Intent intent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,14 +43,19 @@ public class TimePickerActivity extends AppCompatActivity {
         btnCancel = (Button) findViewById(R.id.btnCancel);
         timePicker = (TimePicker) findViewById(R.id.timePicker);
 
+        intent = new Intent(TimePickerActivity.this, AlarmReceiver.class);
+
+        Intent myIntent = getIntent();
+        Bundle bundle = myIntent.getExtras();
+        if (bundle != null) {
+            selectedAlarmTimeId = bundle.getInt("selectedAlarmTimeId");
+        }
+
         database = new Database(this, "alarm.sqlite", null, 1);
 
+        createNotificationChannel();
         //Get current date
         calendar = Calendar.getInstance();
-        createNotificationChannel();
-        alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
-
-        final Intent intent = new Intent(TimePickerActivity.this, AlarmReceiver.class);
 
         btnOk.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -63,31 +68,102 @@ public class TimePickerActivity extends AppCompatActivity {
                 int hour = timePicker.getCurrentHour();
                 int minute = timePicker.getCurrentMinute();
 
-                database.queryData("INSERT INTO AlarmTime VALUES(null, " + hour + ", " + minute + ", 0)");
-
-                int savedAlarmTimeId = 0;
-                Cursor data = database.getData("SELECT * FROM AlarmTime ORDER BY Id DESC LIMIT 1");
-                while (data.moveToNext()) {
-                    savedAlarmTimeId = data.getInt(0);
+                AlarmTimeModel savedAlarmTime = null;
+                if (selectedAlarmTimeId == null) {
+                    savedAlarmTime = addAlarmTime(hour, minute);
+                } else {
+                    savedAlarmTime = updateAlarmTime(selectedAlarmTimeId, hour, minute);
                 }
 
-                intent.putExtra("musicRequest", "on");
-
-                // PendingIntent still exists even the app has been existed
-                pendingIntent = PendingIntent.getBroadcast(TimePickerActivity.this, savedAlarmTimeId, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-                alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
+                if (savedAlarmTime.getStatus() == 1) {
+                    AlarmUtil.turnOn(TimePickerActivity.this, intent, calendar, savedAlarmTime.getId());
+                }
             }
         });
 
         btnCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(TimePickerActivity.this, "Cancel", Toast.LENGTH_SHORT).show();
-                alarmManager.cancel(pendingIntent);
-                intent.putExtra("musicRequest", "off");
-                sendBroadcast(intent);
+                AlarmTimeModel selectedAlarmTime = findAlarmTimeById(selectedAlarmTimeId);
+                if (selectedAlarmTime.getId() != null) {
+                    updateAlarmTimeStatus(selectedAlarmTime, 0);
+                    AlarmUtil.turnOff(TimePickerActivity.this, intent, selectedAlarmTimeId);
+                }
             }
         });
+    }
+
+    public AlarmTimeModel findAlarmTimeById(Integer id) {
+        AlarmTimeModel alarmTime = new AlarmTimeModel();
+
+        Cursor data = database.getData("SELECT * FROM AlarmTime WHERE Id = " + id);
+        if (data.moveToNext()) {
+            alarmTime.setId(data.getInt(0));
+            alarmTime.setHour(data.getInt(1));
+            alarmTime.setMinute(data.getInt(2));
+            alarmTime.setStatus(data.getInt(3));
+        }
+
+        return alarmTime;
+    }
+
+    public AlarmTimeModel findAlarmTimeByTime(int hour, int minute) {
+        AlarmTimeModel alarmTime = new AlarmTimeModel();
+
+        Cursor data = database.getData("SELECT * FROM AlarmTime WHERE Hour = " + hour + " AND Minute = " + minute);
+        if (data.moveToNext()) {
+            alarmTime.setId(data.getInt(0));
+            alarmTime.setHour(data.getInt(1));
+            alarmTime.setMinute(data.getInt(2));
+            alarmTime.setStatus(data.getInt(3));
+        }
+
+        return alarmTime;
+    }
+
+    public AlarmTimeModel addAlarmTime(int hour, int minute) {
+        AlarmTimeModel savedAlarmTime = null;
+        AlarmTimeModel existedAlarmTime = findAlarmTimeByTime(hour, minute);
+
+        if (existedAlarmTime.getId() == null) {
+            database.queryData("INSERT INTO AlarmTime VALUES(null, " + hour + ", " + minute + ", 1)");
+            Cursor data = database.getData("SELECT * FROM AlarmTime ORDER BY Id DESC LIMIT 1");
+            while (data.moveToNext()) {
+                Integer id = data.getInt(0);
+                int hr = data.getInt(1);
+                int min = data.getInt(2);
+                int status = data.getInt(3);
+                savedAlarmTime = new AlarmTimeModel(id, hr, min, status);
+            }
+
+        } else {
+            database.queryData("UPDATE AlarmTime SET Status = " + 1 + " WHERE Id = " + existedAlarmTime.getId());
+            existedAlarmTime.setStatus(1);
+            savedAlarmTime = existedAlarmTime;
+        }
+
+        return savedAlarmTime;
+    }
+
+    public AlarmTimeModel updateAlarmTime(int id, int newHour, int newMinute) {
+        AlarmTimeModel selectedAlarmTime =  findAlarmTimeById(id);
+
+        if (selectedAlarmTime.getId() != null) {
+            database.queryData("UPDATE AlarmTime SET Hour = " + newHour + " , Minute = " + newMinute + " WHERE Id = " + id);
+
+            if (selectedAlarmTime.getStatus() == 1) {
+                AlarmUtil.turnOff(TimePickerActivity.this, intent, id);
+            }
+
+            selectedAlarmTime.setHour(newHour);
+            selectedAlarmTime.setMinute(newMinute);
+        }
+
+        return selectedAlarmTime;
+    }
+
+    public void updateAlarmTimeStatus(AlarmTimeModel alarmTimeModel, int status) {
+        database.queryData("UPDATE AlarmTime SET Status = " + status + " WHERE Id = " + alarmTimeModel.getId());
     }
 
     // Tạo channel notification nếu phiên bản 8 trở lên
@@ -103,6 +179,5 @@ public class TimePickerActivity extends AppCompatActivity {
             NotificationManager notificationManager = getSystemService(NotificationManager.class);
             notificationManager.createNotificationChannel(channel);
         }
-
     }
 }
