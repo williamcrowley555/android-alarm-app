@@ -1,15 +1,18 @@
 package com.example.alarmapp;
 
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.TextView;
 
 import com.example.alarmapp.model.AlarmTimeModel;
 
+import java.util.Calendar;
 import java.util.List;
 
 public class AlarmAdapter extends BaseAdapter {
@@ -68,6 +71,27 @@ public class AlarmAdapter extends BaseAdapter {
 
         holder.txtTime.setText(strHour + ":" + strMinute + " " + period);
         holder.switchTime.setChecked(alarmTime.getStatus() == 0 ? false : true);
+
+        holder.switchTime.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                Intent intent = new Intent(context, AlarmReceiver.class);
+                Database database = new Database(context, "alarm.sqlite", null, 1);
+                if (isChecked) {
+                    database.queryData("UPDATE AlarmTime SET Status = " + 1 + " WHERE Id = " + alarmTime.getId());
+
+                    Calendar calendar = Calendar.getInstance();
+                    calendar.set(Calendar.HOUR_OF_DAY, alarmTime.getHour());
+                    calendar.set(Calendar.MINUTE, alarmTime.getMinute());
+                    calendar.set(Calendar.SECOND, 0);
+                    calendar.set(Calendar.MILLISECOND, 0);
+                    AlarmUtil.turnOn(context, intent, calendar, alarmTime.getId());
+                } else {
+                    database.queryData("UPDATE AlarmTime SET Status = " + 0 + " WHERE Id = " + alarmTime.getId());
+                    AlarmUtil.turnOff(context, intent, alarmTime.getId());
+                }
+            }
+        });
 
         return convertView;
     }

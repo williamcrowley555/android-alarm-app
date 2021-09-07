@@ -75,11 +75,12 @@ public class MainActivity extends AppCompatActivity {
     protected void onRestart() {
         super.onRestart();
         Log.e("ON RESTART", "called");
+        getDataAlarmTime();
     }
 
     private void getDataAlarmTime() {
         if (!arrayAlarmTime.isEmpty()) {
-            arrayAlarmTime = new ArrayList<>();
+            arrayAlarmTime.clear();
         }
 
         Cursor alarmTimeList = database.getData("SELECT * FROM AlarmTime");

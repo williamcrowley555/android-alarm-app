@@ -32,28 +32,19 @@ public class AlarmReceiver extends BroadcastReceiver {
                 .setOngoing(true)
                 .setContentIntent(contentIntent)
                 .setAutoCancel(true)
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT);                        // startForeGroundService để chạy khi app đã tắt
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
 
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
         notificationManager.notify(200, builder.build());
 
+        Log.e("ID",  String.valueOf(intent.getIntExtra("alarmTimeId", 0)));
         String musicRequest = intent.getExtras().getString("musicRequest");
         myIntent = new Intent(context, MusicService.class);
         myIntent.putExtra("musicRequest", musicRequest);
+        myIntent.putExtra("alarmTimeId", intent.getIntExtra("alarmTimeId", 0));
         Log.e("Music Request", musicRequest);
+        // startForeGroundService để chạy khi app đã tắt
         context.startForegroundService(myIntent);
-
-//        showConfirmTurnOffAlarmDialog(context, intent.getIntExtra("alarmTimeId", 0));
     }
 
-    public void showConfirmTurnOffAlarmDialog(Context context, Integer alarmTimeId) {
-        AlertDialog.Builder alertDialog = new AlertDialog.Builder(context);
-        alertDialog.setTitle("Alarm Notification");
-        alertDialog.setPositiveButton("Stop", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                AlarmUtil.turnOff(context, myIntent, alarmTimeId);
-            }
-        });
-    }
 }

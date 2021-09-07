@@ -25,7 +25,7 @@ import android.widget.Toast;
 import java.util.Calendar;
 
 public class TimePickerActivity extends AppCompatActivity {
-    Button btnOk, btnCancel;
+    Button btnOk, btnRepeat;
     TimePicker timePicker;
     Calendar calendar;
 
@@ -40,7 +40,7 @@ public class TimePickerActivity extends AppCompatActivity {
         setContentView(R.layout.activity_timepicker);
 
         btnOk = (Button) findViewById(R.id.btnOk);
-        btnCancel = (Button) findViewById(R.id.btnCancel);
+        btnRepeat = (Button) findViewById(R.id.btnRepeat);
         timePicker = (TimePicker) findViewById(R.id.timePicker);
 
         intent = new Intent(TimePickerActivity.this, AlarmReceiver.class);
@@ -56,6 +56,12 @@ public class TimePickerActivity extends AppCompatActivity {
         createNotificationChannel();
         //Get current date
         calendar = Calendar.getInstance();
+
+        if (selectedAlarmTimeId != null) {
+            AlarmTimeModel alarmTimeModel = findAlarmTimeById(selectedAlarmTimeId);
+            timePicker.setCurrentHour(alarmTimeModel.getHour());
+            timePicker.setCurrentMinute(alarmTimeModel.getMinute());
+        }
 
         btnOk.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -81,13 +87,17 @@ public class TimePickerActivity extends AppCompatActivity {
             }
         });
 
-        btnCancel.setOnClickListener(new View.OnClickListener() {
+        btnRepeat.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 AlarmTimeModel selectedAlarmTime = findAlarmTimeById(selectedAlarmTimeId);
                 if (selectedAlarmTime.getId() != null) {
-                    updateAlarmTimeStatus(selectedAlarmTime, 0);
-                    AlarmUtil.turnOff(TimePickerActivity.this, intent, selectedAlarmTimeId);
+                    updateAlarmTimeStatus(selectedAlarmTime, 1);
+                    calendar.set(Calendar.HOUR_OF_DAY, selectedAlarmTime.getHour());
+                    calendar.set(Calendar.MINUTE, selectedAlarmTime.getMinute());
+                    calendar.set(Calendar.SECOND, 0);
+                    calendar.set(Calendar.MILLISECOND, 0);
+                    AlarmUtil.turnOnAndRepeat(TimePickerActivity.this, intent, calendar, selectedAlarmTime.getId());
                 }
             }
         });
