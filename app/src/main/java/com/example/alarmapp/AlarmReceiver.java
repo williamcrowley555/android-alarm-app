@@ -37,11 +37,10 @@ public class AlarmReceiver extends BroadcastReceiver {
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
         notificationManager.notify(200, builder.build());
 
-        Log.e("ID",  String.valueOf(intent.getIntExtra("alarmTimeId", 0)));
+        Log.e("Receiver",  "called");
         String musicRequest = intent.getExtras().getString("musicRequest");
         myIntent = new Intent(context, MusicService.class);
         myIntent.putExtra("musicRequest", musicRequest);
-        myIntent.putExtra("alarmTimeId", intent.getIntExtra("alarmTimeId", 0));
         Log.e("Music Request", musicRequest);
         // startForeGroundService để chạy khi app đã tắt
         context.startForegroundService(myIntent);

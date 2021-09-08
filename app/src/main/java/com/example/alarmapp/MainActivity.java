@@ -46,7 +46,7 @@ public class MainActivity extends AppCompatActivity {
         database = new Database(this, "alarm.sqlite", null, 1);
         database.queryData("CREATE TABLE IF NOT EXISTS AlarmTime(Id INTEGER PRIMARY KEY AUTOINCREMENT, Hour INTEGER, Minute INTEGER,  Status INTEGER)");
 
-        getDataAlarmTime();
+        getDataAlarmTimeForFirstTime();
 
         btnAdd = (FloatingActionButton) findViewById(R.id.btnAdd);
         btnAdd.setOnClickListener(v -> {
@@ -66,15 +66,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        Log.e("ON RESUME", "called");
-    }
-
-    @Override
     protected void onRestart() {
         super.onRestart();
-        Log.e("ON RESTART", "called");
         getDataAlarmTime();
     }
 
@@ -90,6 +83,33 @@ public class MainActivity extends AppCompatActivity {
             int minute = alarmTimeList.getInt(2);
             int status = alarmTimeList.getInt(3);
             arrayAlarmTime.add(new AlarmTimeModel(id, hour, minute, status));
+        }
+
+        adapter.notifyDataSetChanged();
+    }
+
+    private void getDataAlarmTimeForFirstTime() {
+        if (!arrayAlarmTime.isEmpty()) {
+            arrayAlarmTime.clear();
+        }
+
+        Cursor alarmTimeList = database.getData("SELECT * FROM AlarmTime");
+        while (alarmTimeList.moveToNext()) {
+            int id = alarmTimeList.getInt(0);
+            int hour = alarmTimeList.getInt(1);
+            int minute = alarmTimeList.getInt(2);
+            int status = alarmTimeList.getInt(3);
+            arrayAlarmTime.add(new AlarmTimeModel(id, hour, minute, status));
+
+            if (status == 1) {
+                Intent intent = new Intent(MainActivity.this, AlarmReceiver.class);
+                Calendar calendar = Calendar.getInstance();
+                calendar.set(Calendar.HOUR_OF_DAY, hour);
+                calendar.set(Calendar.MINUTE, minute);
+                calendar.set(Calendar.SECOND, 00);
+
+                AlarmUtil.turnOnAndRepeat(MainActivity.this, intent, calendar, id);
+            }
         }
 
         adapter.notifyDataSetChanged();

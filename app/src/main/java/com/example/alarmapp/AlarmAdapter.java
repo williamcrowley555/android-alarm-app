@@ -83,9 +83,9 @@ public class AlarmAdapter extends BaseAdapter {
                     Calendar calendar = Calendar.getInstance();
                     calendar.set(Calendar.HOUR_OF_DAY, alarmTime.getHour());
                     calendar.set(Calendar.MINUTE, alarmTime.getMinute());
-                    calendar.set(Calendar.SECOND, 0);
-                    calendar.set(Calendar.MILLISECOND, 0);
-                    AlarmUtil.turnOn(context, intent, calendar, alarmTime.getId());
+                    calendar.set(Calendar.SECOND, 00);
+
+                    AlarmUtil.turnOnAndRepeat(context, intent, calendar, alarmTime.getId());
                 } else {
                     database.queryData("UPDATE AlarmTime SET Status = " + 0 + " WHERE Id = " + alarmTime.getId());
                     AlarmUtil.turnOff(context, intent, alarmTime.getId());

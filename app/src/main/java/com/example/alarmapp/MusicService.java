@@ -33,22 +33,20 @@ public class MusicService extends Service {
 
         if (musicRequest.equals("on")) {
             mediaPlayer = MediaPlayer.create(this, R.raw.bigroom_never_dies);
+
+            // Run media player in 10 secs
             CountDownTimer countDownTimer = new CountDownTimer(10000, 1000) {
                 public void onTick(long millisUntilFinished) {
                     mediaPlayer.start();
                 }
 
                 public void onFinish() {
-                    //code fire after finish
+                    // Code fire after finish
                     mediaPlayer.stop();
                     Integer alarmTimeId = intent.getIntExtra("alarmTimeId", 0);
-                    if (alarmTimeId > 0) {
-                        Database database = new Database(getApplicationContext(), "alarm.sqlite", null, 1);
-                        database.queryData("UPDATE AlarmTime SET Status = " + 0 + " WHERE Id = " + alarmTimeId);
-                        Intent updateIntent = new Intent(getApplicationContext(), MainActivity.class);
-                        updateIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        startActivity(updateIntent);
-                    }
+                    Intent updateIntent = new Intent(getApplicationContext(), MainActivity.class);
+                    updateIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(updateIntent);
                 }
             };
             countDownTimer.start();

@@ -32,6 +32,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Save"
+            android:backgroundTint="@color/green"
             android:textSize="22sp"
             android:layout_marginHorizontal="20dp"
             android:padding="10dp"
@@ -39,11 +40,12 @@
             />
 
         <Button
-            android:id="@+id/btnRepeat"
+            android:id="@+id/btnRemove"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:text="Repeat everyday"
+            android:layout_marginTop="20dp"
+            android:text="Remove"
+            android:backgroundTint="@color/red"
             android:textSize="22sp"
             android:layout_marginHorizontal="20dp"
             android:padding="10dp"

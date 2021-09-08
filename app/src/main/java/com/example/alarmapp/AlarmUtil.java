@@ -12,23 +12,20 @@ import static android.content.Context.ALARM_SERVICE;
 
 public class AlarmUtil {
 
-    public static void turnOn(Context context, Intent intent, Calendar calendar, int alarmTimeId) {
-        AlarmManager alarmManager = (AlarmManager) context.getSystemService(ALARM_SERVICE);
-        intent.putExtra("musicRequest", "on");
-        intent.putExtra("alarmTimeId", alarmTimeId);
-
-        // PendingIntent still exists even the app has been existed
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, alarmTimeId, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-        alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
-    }
-
     public static void turnOnAndRepeat(Context context, Intent intent, Calendar calendar, int alarmTimeId) {
+        // Turn off previous alarm first. Use case: update an alarm time that has status = 1
+        turnOff(context, intent, alarmTimeId);
+
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(ALARM_SERVICE);
         intent.putExtra("musicRequest", "on");
 
         // PendingIntent still exists even the app has been existed
         PendingIntent pendingIntent = PendingIntent.getBroadcast(context, alarmTimeId, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-        alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis()+ (2 * 1000), (30 * 1000), pendingIntent);
+        long startUpTime = calendar.getTimeInMillis();
+        if (System.currentTimeMillis() > startUpTime) {
+            startUpTime = startUpTime + 24*60*60*1000;
+        }
+        alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, startUpTime, AlarmManager.INTERVAL_DAY, pendingIntent);
     }
 
     public static void turnOff(Context context, Intent intent, int alarmTimeId) {

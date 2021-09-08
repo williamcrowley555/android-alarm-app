@@ -25,7 +25,7 @@ import android.widget.Toast;
 import java.util.Calendar;
 
 public class TimePickerActivity extends AppCompatActivity {
-    Button btnOk, btnRepeat;
+    Button btnOk, btnRemove;
     TimePicker timePicker;
     Calendar calendar;
 
@@ -40,7 +40,7 @@ public class TimePickerActivity extends AppCompatActivity {
         setContentView(R.layout.activity_timepicker);
 
         btnOk = (Button) findViewById(R.id.btnOk);
-        btnRepeat = (Button) findViewById(R.id.btnRepeat);
+        btnRemove = (Button) findViewById(R.id.btnRemove);
         timePicker = (TimePicker) findViewById(R.id.timePicker);
 
         intent = new Intent(TimePickerActivity.this, AlarmReceiver.class);
@@ -61,18 +61,19 @@ public class TimePickerActivity extends AppCompatActivity {
             AlarmTimeModel alarmTimeModel = findAlarmTimeById(selectedAlarmTimeId);
             timePicker.setCurrentHour(alarmTimeModel.getHour());
             timePicker.setCurrentMinute(alarmTimeModel.getMinute());
+        } else {
+            btnRemove.setVisibility(View.GONE);
         }
 
         btnOk.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                calendar.set(Calendar.HOUR_OF_DAY, timePicker.getCurrentHour());
-                calendar.set(Calendar.MINUTE, timePicker.getCurrentMinute());
-                calendar.set(Calendar.SECOND, 0);
-                calendar.set(Calendar.MILLISECOND, 0);
-
                 int hour = timePicker.getCurrentHour();
                 int minute = timePicker.getCurrentMinute();
+
+                calendar.set(Calendar.HOUR_OF_DAY, hour);
+                calendar.set(Calendar.MINUTE, minute);
+                calendar.set(Calendar.SECOND, 00);
 
                 AlarmTimeModel savedAlarmTime = null;
                 if (selectedAlarmTimeId == null) {
@@ -82,22 +83,19 @@ public class TimePickerActivity extends AppCompatActivity {
                 }
 
                 if (savedAlarmTime.getStatus() == 1) {
-                    AlarmUtil.turnOn(TimePickerActivity.this, intent, calendar, savedAlarmTime.getId());
+                    AlarmUtil.turnOnAndRepeat(TimePickerActivity.this, intent, calendar, savedAlarmTime.getId());
                 }
+
+                finish();
             }
         });
 
-        btnRepeat.setOnClickListener(new View.OnClickListener() {
+        btnRemove.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                AlarmTimeModel selectedAlarmTime = findAlarmTimeById(selectedAlarmTimeId);
-                if (selectedAlarmTime.getId() != null) {
-                    updateAlarmTimeStatus(selectedAlarmTime, 1);
-                    calendar.set(Calendar.HOUR_OF_DAY, selectedAlarmTime.getHour());
-                    calendar.set(Calendar.MINUTE, selectedAlarmTime.getMinute());
-                    calendar.set(Calendar.SECOND, 0);
-                    calendar.set(Calendar.MILLISECOND, 0);
-                    AlarmUtil.turnOnAndRepeat(TimePickerActivity.this, intent, calendar, selectedAlarmTime.getId());
+                if (selectedAlarmTimeId != null) {
+                    deleteAlarmTime(selectedAlarmTimeId);
+                    finish();
                 }
             }
         });
@@ -174,6 +172,18 @@ public class TimePickerActivity extends AppCompatActivity {
 
     public void updateAlarmTimeStatus(AlarmTimeModel alarmTimeModel, int status) {
         database.queryData("UPDATE AlarmTime SET Status = " + status + " WHERE Id = " + alarmTimeModel.getId());
+    }
+
+    public void deleteAlarmTime(int id) {
+        AlarmTimeModel selectedAlarmTime =  findAlarmTimeById(id);
+
+        if (selectedAlarmTime.getId() != null) {
+            if (selectedAlarmTime.getStatus() == 1) {
+                AlarmUtil.turnOff(TimePickerActivity.this, intent, id);
+            }
+
+            database.queryData("DELETE FROM AlarmTime WHERE Id = " + id);
+        }
     }
 
     // Tạo channel notification nếu phiên bản 8 trở lên
