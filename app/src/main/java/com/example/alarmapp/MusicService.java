@@ -10,13 +10,9 @@ import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.CountDownTimer;
 import android.os.IBinder;
-import android.util.Log;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
-
-import java.util.Timer;
-import java.util.TimerTask;
 
 public class MusicService extends Service {
     MediaPlayer mediaPlayer;

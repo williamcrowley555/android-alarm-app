@@ -2,21 +2,12 @@ package com.example.alarmapp;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.app.AlarmManager;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.Intent;
 import android.database.Cursor;
-import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.Button;
 import android.widget.ListView;
-import android.widget.TimePicker;
-import android.widget.Toast;
 
 import com.example.alarmapp.model.AlarmTimeModel;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -46,7 +37,7 @@ public class MainActivity extends AppCompatActivity {
         database = new Database(this, "alarm.sqlite", null, 1);
         database.queryData("CREATE TABLE IF NOT EXISTS AlarmTime(Id INTEGER PRIMARY KEY AUTOINCREMENT, Hour INTEGER, Minute INTEGER,  Status INTEGER)");
 
-        getDataAlarmTimeForFirstTime();
+        getDataAlarmTime(true);
 
         btnAdd = (FloatingActionButton) findViewById(R.id.btnAdd);
         btnAdd.setOnClickListener(v -> {
@@ -68,27 +59,10 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onRestart() {
         super.onRestart();
-        getDataAlarmTime();
+        getDataAlarmTime(false);
     }
 
-    private void getDataAlarmTime() {
-        if (!arrayAlarmTime.isEmpty()) {
-            arrayAlarmTime.clear();
-        }
-
-        Cursor alarmTimeList = database.getData("SELECT * FROM AlarmTime");
-        while (alarmTimeList.moveToNext()) {
-            int id = alarmTimeList.getInt(0);
-            int hour = alarmTimeList.getInt(1);
-            int minute = alarmTimeList.getInt(2);
-            int status = alarmTimeList.getInt(3);
-            arrayAlarmTime.add(new AlarmTimeModel(id, hour, minute, status));
-        }
-
-        adapter.notifyDataSetChanged();
-    }
-
-    private void getDataAlarmTimeForFirstTime() {
+    private void getDataAlarmTime(boolean flag) {
         if (!arrayAlarmTime.isEmpty()) {
             arrayAlarmTime.clear();
         }
@@ -101,14 +75,17 @@ public class MainActivity extends AppCompatActivity {
             int status = alarmTimeList.getInt(3);
             arrayAlarmTime.add(new AlarmTimeModel(id, hour, minute, status));
 
-            if (status == 1) {
-                Intent intent = new Intent(MainActivity.this, AlarmReceiver.class);
-                Calendar calendar = Calendar.getInstance();
-                calendar.set(Calendar.HOUR_OF_DAY, hour);
-                calendar.set(Calendar.MINUTE, minute);
-                calendar.set(Calendar.SECOND, 00);
+            // Define flag as true to turn on all saved alarm times on first app start only
+            if (flag) {
+                if (status == 1) {
+                    Intent intent = new Intent(MainActivity.this, AlarmReceiver.class);
+                    Calendar calendar = Calendar.getInstance();
+                    calendar.set(Calendar.HOUR_OF_DAY, hour);
+                    calendar.set(Calendar.MINUTE, minute);
+                    calendar.set(Calendar.SECOND, 00);
 
-                AlarmUtil.turnOnAndRepeat(MainActivity.this, intent, calendar, id);
+                    AlarmUtil.turnOnAndRepeat(MainActivity.this, intent, calendar, id);
+                }
             }
         }
 

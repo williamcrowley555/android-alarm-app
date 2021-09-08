@@ -4,7 +4,6 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 
 import java.util.Calendar;
 
@@ -13,7 +12,7 @@ import static android.content.Context.ALARM_SERVICE;
 public class AlarmUtil {
 
     public static void turnOnAndRepeat(Context context, Intent intent, Calendar calendar, int alarmTimeId) {
-        // Turn off previous alarm first. Use case: update an alarm time that has status = 1
+        // Turn off previous alarm first. Use case: update an alarm time that already has status = 1
         turnOff(context, intent, alarmTimeId);
 
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(ALARM_SERVICE);

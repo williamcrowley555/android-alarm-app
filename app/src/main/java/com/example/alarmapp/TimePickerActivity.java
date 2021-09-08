@@ -1,26 +1,19 @@
 package com.example.alarmapp;
 
-import android.app.AlarmManager;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Build;
 import android.os.Bundle;
 
 import com.example.alarmapp.model.AlarmTimeModel;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TimePicker;
-import android.widget.Toast;
 
 import java.util.Calendar;
 
@@ -54,6 +47,7 @@ public class TimePickerActivity extends AppCompatActivity {
         database = new Database(this, "alarm.sqlite", null, 1);
 
         createNotificationChannel();
+
         //Get current date
         calendar = Calendar.getInstance();
 
@@ -170,10 +164,6 @@ public class TimePickerActivity extends AppCompatActivity {
         return selectedAlarmTime;
     }
 
-    public void updateAlarmTimeStatus(AlarmTimeModel alarmTimeModel, int status) {
-        database.queryData("UPDATE AlarmTime SET Status = " + status + " WHERE Id = " + alarmTimeModel.getId());
-    }
-
     public void deleteAlarmTime(int id) {
         AlarmTimeModel selectedAlarmTime =  findAlarmTimeById(id);
 
@@ -186,7 +176,7 @@ public class TimePickerActivity extends AppCompatActivity {
         }
     }
 
-    // Tạo channel notification nếu phiên bản 8 trở lên
+    // Starting in Android 8.0 (API level 26), all notifications must be assigned to a channel
     private void createNotificationChannel(){
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
         {

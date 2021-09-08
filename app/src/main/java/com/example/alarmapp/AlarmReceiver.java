@@ -1,10 +1,8 @@
 package com.example.alarmapp;
 
-import android.app.AlertDialog;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Build;
 import android.util.Log;
@@ -20,15 +18,14 @@ public class AlarmReceiver extends BroadcastReceiver {
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     public void onReceive(Context context, Intent intent) {
-        //Intent để mở app khi ấn vào notification
+        // Open the app if user touch on the notification
         Intent notificationIntent = new Intent(context, MainActivity.class);
         PendingIntent contentIntent = PendingIntent.getActivity(context, 0, notificationIntent, 0);
 
-        //Tạo notification với channelId theo tên đã tạo.
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, "alarm")
                 .setSmallIcon(R.drawable.ic_launcher_foreground)
-                .setContentTitle("Alarm")
-                .setContentText("Time to wakup !")
+                .setContentTitle("Alarm Notification")
+                .setContentText("Time to wake up !")
                 .setOngoing(true)
                 .setContentIntent(contentIntent)
                 .setAutoCancel(true)
@@ -37,12 +34,12 @@ public class AlarmReceiver extends BroadcastReceiver {
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
         notificationManager.notify(200, builder.build());
 
-        Log.e("Receiver",  "called");
         String musicRequest = intent.getExtras().getString("musicRequest");
         myIntent = new Intent(context, MusicService.class);
         myIntent.putExtra("musicRequest", musicRequest);
         Log.e("Music Request", musicRequest);
-        // startForeGroundService để chạy khi app đã tắt
+
+        // make the service still work even the app is closed
         context.startForegroundService(myIntent);
     }
 
