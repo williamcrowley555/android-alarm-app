@@ -24,7 +24,7 @@ public class AlarmUtil {
         if (System.currentTimeMillis() > startUpTime) {
             startUpTime = startUpTime + 24*60*60*1000;
         }
-        alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, startUpTime, AlarmManager.INTERVAL_DAY, pendingIntent);
+        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, startUpTime, AlarmManager.INTERVAL_DAY, pendingIntent);
     }
 
     public static void turnOff(Context context, Intent intent, int alarmTimeId) {

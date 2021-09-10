@@ -28,7 +28,7 @@ public class MusicService extends Service {
         String musicRequest = intent.getExtras().getString("musicRequest");
 
         if (musicRequest.equals("on")) {
-            mediaPlayer = MediaPlayer.create(this, R.raw.bigroom_never_dies);
+            mediaPlayer = MediaPlayer.create(this, R.raw.legends);
 
             // Run media player in 10 secs
             CountDownTimer countDownTimer = new CountDownTimer(10000, 1000) {
@@ -39,10 +39,7 @@ public class MusicService extends Service {
                 public void onFinish() {
                     // Code fire after finish
                     mediaPlayer.stop();
-                    Integer alarmTimeId = intent.getIntExtra("alarmTimeId", 0);
-                    Intent updateIntent = new Intent(getApplicationContext(), MainActivity.class);
-                    updateIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    startActivity(updateIntent);
+                    mediaPlayer.release();
                 }
             };
             countDownTimer.start();

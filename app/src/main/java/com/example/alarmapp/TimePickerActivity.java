@@ -153,10 +153,6 @@ public class TimePickerActivity extends AppCompatActivity {
         if (selectedAlarmTime.getId() != null) {
             database.queryData("UPDATE AlarmTime SET Hour = " + newHour + " , Minute = " + newMinute + " WHERE Id = " + id);
 
-            if (selectedAlarmTime.getStatus() == 1) {
-                AlarmUtil.turnOff(TimePickerActivity.this, intent, id);
-            }
-
             selectedAlarmTime.setHour(newHour);
             selectedAlarmTime.setMinute(newMinute);
         }
