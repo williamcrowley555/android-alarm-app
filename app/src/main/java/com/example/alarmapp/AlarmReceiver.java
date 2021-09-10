@@ -12,7 +12,6 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
 public class AlarmReceiver extends BroadcastReceiver {
-
     Intent myIntent;
 
     @RequiresApi(api = Build.VERSION_CODES.O)

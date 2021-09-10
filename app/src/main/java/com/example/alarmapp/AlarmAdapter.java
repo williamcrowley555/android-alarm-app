@@ -65,7 +65,7 @@ public class AlarmAdapter extends BaseAdapter {
         int hour = alarmTime.getHour() > 12 ? (alarmTime.getHour() - 12) : alarmTime.getHour();
         int minute = alarmTime.getMinute();
 
-        String period = alarmTime.getHour() > 12 ? "PM" : "AM";
+        String period = alarmTime.getHour() >= 12 ? "PM" : "AM";
         String strHour = hour > 9 ? String.valueOf(hour) : "0" + hour;
         String strMinute = minute > 9 ? String.valueOf(minute) : "0" + minute;
 
